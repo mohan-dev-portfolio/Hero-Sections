@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mohan Prasath | Frontend Developer</title>
+    <title>Mohan Prasath | Frontend Engineer</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -96,31 +96,21 @@
             padding: 1rem;
         }
 
-        /* Glass Panel */
+        /* Glass Panel - Stripped to just layout */
         .glass-panel {
-            /* Lighter, more premium glass tint */
-            background: rgba(255, 255, 255, 0.03);
+            /* Removed glass effects (background, border, shadow, blur) */
+            background: transparent; 
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+            box-shadow: none;
             
-            /* Stronger blur for true frosted glass feel */
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            
-            /* Edge highlights for 3D glass look */
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
-            
-            border-radius: 24px;
-            padding: 3rem 4rem;
+            padding: 1rem; /* Reduced padding since no border */
             text-align: center;
             pointer-events: auto;
             transform: translateY(20px);
             opacity: 0;
             animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s forwards;
-            
-            /* Deep shadow + Inner glow for thickness */
-            box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.6), 
-                        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
             
             max-width: 900px;
             width: 100%;
@@ -209,8 +199,12 @@
             bottom: 2rem;
             left: 50%;
             transform: translateX(-50%);
-            opacity: 0.5;
+            opacity: 0.7; /* Increased base opacity */
             animation: bounce 2s infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         @keyframes bounce {
@@ -280,25 +274,28 @@
             </div>
 
             <!-- Mobile: Only Contact or Menu Icon (Simple for now) -->
-            <a href="mailto:mohanprasath210607@gmail.com" class="text-sm text-gray-400 hover:text-white transition-colors interactive-element">Contact</a>
+            <a href="mailto:contact@mohan.dev" class="text-sm text-gray-400 hover:text-white transition-colors interactive-element">Contact</a>
         </nav>
 
         <!-- Main Hero Card -->
         <div class="glass-panel">
-            <span class="role-tag">Frontend Developer</span>
+            <span class="role-tag">Frontend Engineer</span>
             <h1 class="text-5xl md:text-7xl font-bold mb-4">MOHAN PRASATH</h1>
             <p class="text-gray-400 max-w-md mx-auto leading-relaxed text-lg">
                 Crafting digital systems with spatial depth, interaction, and precise engineering.
             </p>
             
             <button class="cta-btn interactive-element">
-                View Work
+                View Selected Work
             </button>
         </div>
 
         <!-- Scroll Hint -->
-        <div class="scroll-indicator text-xs tracking-widest uppercase text-gray-500">
-            Scroll
+        <div class="scroll-indicator">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+            </svg>
+            <span class="text-xs tracking-widest uppercase text-gray-500">Scroll</span>
         </div>
 
     </div>
@@ -337,10 +334,10 @@
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
+            size: 0.09, // Increased from 0.05
             color: 0x88ccff, // Slightly bluer/brighter
             transparent: true,
-            opacity: 0.7,
+            opacity: 0.9, // Increased from 0.7
             sizeAttenuation: true
         });
 
@@ -359,10 +356,10 @@
         dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPosArray, 3));
 
         const dustMaterial = new THREE.PointsMaterial({
-            size: 0.02, // Smaller
+            size: 0.05, // Increased from 0.02
             color: 0x64748b, // Muted grey/blue
             transparent: true,
-            opacity: 0.3,
+            opacity: 0.5, // Increased from 0.3
             sizeAttenuation: true
         });
 
