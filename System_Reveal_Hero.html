@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohan Prasath | Frontend Interaction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #09090b; /* Soft Charcoal/Black */
+            --text-primary: #f4f4f5;
+            --text-secondary: #71717a;
+            --accent-dim: rgba(34, 211, 238, 0.15); /* Cyan dim */
+            --accent-bright: rgba(34, 211, 238, 0.8); /* Cyan bright */
+            
+            /* Dynamic Cursor Variables */
+            --cursor-x: 50%;
+            --cursor-y: 50%;
+            --mask-size: 0px; /* Starts at 0, expands on hover */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* LAYER 1: The Base Content 
+           Always visible, minimal.
+        */
+        .base-layer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through if needed */
+        }
+
+        /* LAYER 2: The System/Reveal Layer 
+           This contains the grid, metadata, and technical details.
+           It is hidden by default using mask-image.
+        */
+        .system-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+            
+            /* The Core Reveal Mechanism */
+            mask-image: radial-gradient(
+                circle var(--mask-size) at var(--cursor-x) var(--cursor-y), 
+                black 0%, 
+                rgba(0,0,0,0.1) 50%, 
+                transparent 70%
+            );
+            -webkit-mask-image: radial-gradient(
+                circle var(--mask-size) at var(--cursor-x) var(--cursor-y), 
+                black 0%, 
+                rgba(0,0,0,0.1) 50%, 
+                transparent 70%
+            );
+            
+            /* Slight opacity transition for enter/leave */
+            transition: opacity 0.4s ease;
+            opacity: 0; 
+        }
+
+        /* Active state controlled by JS */
+        .system-layer.is-active {
+            opacity: 1;
+        }
+
+        /* Grid Pattern 
+           Generated purely with CSS gradients for performance 
+        */
+        .grid-pattern {
+            background-size: 60px 60px;
+            background-image: 
+                linear-gradient(to right, var(--accent-dim) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--accent-dim) 1px, transparent 1px);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* The "Scan Line"
+           Horizontal line that passes through on idle
+        */
+        .scan-line {
+            position: absolute;
+            left: 0;
+            top: var(--cursor-y); /* Starts at cursor Y */
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-bright), transparent);
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        .scanning .scan-line {
+            animation: scanPass 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes scanPass {
+            0% {
+                opacity: 0;
+                transform: translateY(-60px);
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px);
+            }
+        }
+
+        /* Utility for crosshairs */
+        .crosshair {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+        }
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--accent-bright);
+        }
+        .crosshair::before { width: 1px; height: 100%; left: 50%; }
+        .crosshair::after { height: 1px; width: 100%; top: 50%; }
+
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center selection:bg-cyan-900 selection:text-white">
+
+    <!-- Main Interactive Arena -->
+    <main id="hero-arena" class="relative w-full h-full flex items-center justify-center overflow-hidden">
+
+        <!-- 
+            ========================
+            LAYER 1: SYSTEM (HIDDEN)
+            ========================
+            Only visible via cursor "flashlight"
+        -->
+        <div id="system-layer" class="system-layer">
+            <!-- Background Grid -->
+            <div class="grid-pattern"></div>
+
+            <!-- Dynamic Scan Line -->
+            <div class="scan-line"></div>
+
+            <!-- Decorative System Data: Top Left -->
+            <div class="absolute top-12 left-12 font-mono text-xs text-cyan-400 tracking-widest opacity-80 leading-loose">
+                <div>sys.status: ACTIVE</div>
+                <div>render.mode: GPU</div>
+                <div>viewport: <span id="viewport-data">--</span></div>
+            </div>
+
+            <!-- Decorative System Data: Bottom Right -->
+            <div class="absolute bottom-12 right-12 font-mono text-xs text-cyan-400 tracking-widest opacity-80 text-right leading-loose">
+                <div>COORD.X: <span id="coord-x">0000</span></div>
+                <div>COORD.Y: <span id="coord-y">0000</span></div>
+                <div>MEM.HEAP: STABLE</div>
+            </div>
+
+            <!-- Alignment Lines (Center Cross) -->
+            <div class="absolute top-0 left-1/2 w-px h-full bg-cyan-500/20"></div>
+            <div class="absolute top-1/2 left-0 w-full h-px bg-cyan-500/20"></div>
+
+            <!-- Floating Crosshairs (Randomly placed for aesthetic) -->
+            <div class="crosshair top-1/3 left-1/4"></div>
+            <div class="crosshair bottom-1/3 right-1/4"></div>
+
+            <!-- Ghost Text (Echoing the main title but tech-styled) -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="text-center transform translate-x-[2px] translate-y-[2px]">
+                    <h1 class="text-6xl md:text-8xl font-bold tracking-tighter text-transparent stroke-cyan opacity-20" 
+                        style="-webkit-text-stroke: 1px rgba(34,211,238,0.3);">
+                        CLARITY
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- 
+            ========================
+            LAYER 2: BASE CONTENT
+            ========================
+            The clean, always-visible portfolio layer
+        -->
+        <div class="base-layer text-center px-6">
+            <p class="font-mono text-xs md:text-sm text-zinc-500 mb-6 tracking-[0.2em] uppercase">
+                Mohan Prasath &mdash; Frontend Developer
+            </p>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight text-zinc-100 mb-8">
+                CLARITY OVER<br>
+                <span class="text-zinc-400">COMPLEXITY.</span>
+            </h1>
+
+            <div class="flex flex-col items-center gap-4 opacity-60">
+                <div class="h-12 w-[1px] bg-zinc-700"></div>
+                <span class="font-mono text-[10px] text-zinc-600 tracking-widest">SCROLL TO BEGIN</span>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /**
+         * COGNITIVE REVEAL ENGINE
+         * Handles cursor tracking, linear interpolation (inertia), 
+         * and idle state detection for the scan effect.
+         */
+
+        const arena = document.getElementById('hero-arena');
+        const systemLayer = document.getElementById('system-layer');
+        const coordXDisplay = document.getElementById('coord-x');
+        const coordYDisplay = document.getElementById('coord-y');
+        const viewportDisplay = document.getElementById('viewport-data');
+
+        // Config
+        const CONFIG = {
+            inertia: 0.15, // 0.1 = heavy lag, 0.9 = snappy
+            maskSize: 300, // px
+            idleTimeout: 600 // ms before scan triggers
+        };
+
+        // State
+        let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let current = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let isHovering = false;
+        let idleTimer = null;
+        let isScanning = false;
+
+        // --- Core Physics Loop ---
+        function animate() {
+            // Linear Interpolation (Lerp)
+            // formula: current + (target - current) * fraction
+            const distX = mouse.x - current.x;
+            const distY = mouse.y - current.y;
+
+            current.x += distX * CONFIG.inertia;
+            current.y += distY * CONFIG.inertia;
+
+            // Apply to CSS Custom Properties
+            // We use the root or the specific element to limit repaint scope
+            // Using pixels ensures strict following regardless of container size
+            systemLayer.style.setProperty('--cursor-x', `${current.x}px`);
+            systemLayer.style.setProperty('--cursor-y', `${current.y}px`);
+
+            // Dynamic Coordinates Update (System Text)
+            // We throttle text updates slightly visually by rounding
+            if (isHovering) {
+                coordXDisplay.innerText = Math.round(current.x).toString().padStart(4, '0');
+                coordYDisplay.innerText = Math.round(current.y).toString().padStart(4, '0');
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- Interaction Handlers ---
+
+        const handleMouseMove = (e) => {
+            // Update target coordinates
+            const rect = arena.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+
+            // Reset Idle Timer
+            resetIdleTimer();
+
+            // First entry logic
+            if (!isHovering) {
+                isHovering = true;
+                systemLayer.classList.add('is-active');
+                systemLayer.style.setProperty('--mask-size', `${CONFIG.maskSize}px`);
+            }
+        };
+
+        const handleMouseLeave = () => {
+            isHovering = false;
+            systemLayer.classList.remove('is-active');
+            systemLayer.style.setProperty('--mask-size', '0px');
+            clearTimeout(idleTimer);
+        };
+
+        // --- Idle Scan Logic ---
+
+        const resetIdleTimer = () => {
+            clearTimeout(idleTimer);
+            
+            // Remove scanning class to reset animation if it was playing
+            if (isScanning) {
+                systemLayer.classList.remove('scanning');
+                isScanning = false;
+            }
+
+            // Set new timer
+            idleTimer = setTimeout(() => {
+                if (isHovering) {
+                    triggerScan();
+                }
+            }, CONFIG.idleTimeout);
+        };
+
+        const triggerScan = () => {
+            isScanning = true;
+            // Force reflow allows restarting CSS animation if needed, 
+            // though adding class usually suffices
+            void systemLayer.offsetWidth; 
+            systemLayer.classList.add('scanning');
+        };
+
+        // --- Initialization ---
+
+        // Update static data
+        viewportDisplay.innerText = `${window.innerWidth}x${window.innerHeight}`;
+
+        // Accessibility Check
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        if (!prefersReducedMotion.matches) {
+            // Start Loop
+            animate();
+
+            // Bind Events
+            arena.addEventListener('mousemove', handleMouseMove);
+            arena.addEventListener('mouseleave', handleMouseLeave);
+            
+            // Touch devices usually don't have hover, so we disable specific hover logic
+            // or map touchmove to it. For this "premium" feel, we disable on touch
+            // to avoid covering content with a finger.
+            arena.addEventListener('touchstart', () => {
+                // Optional: Show full system layer on tap? 
+                // For now, we keep it hidden to preserve clarity on mobile.
+            });
+        } else {
+            // Accessible Fallback: Show everything statically or keep minimal
+            // We choose minimal (default state)
+            console.log("Reduced motion detected: Interactions disabled.");
+        }
+
+        // Window Resize Handler
+        window.addEventListener('resize', () => {
+             viewportDisplay.innerText = `${window.innerWidth}x${window.innerHeight}`;
+        });
+
+    </script>
+</body>
+</html>
