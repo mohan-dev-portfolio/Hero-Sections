@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mohan Prasath | Frontend Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-primary: #ededed;
+            --text-secondary: #888888;
+            --accent: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom Selection Color for Premium Feel */
+        ::selection {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Premium Easing Curve 
+           This is a custom bezier curve that mimics high-end motion design.
+           It starts fast and lands very slowly.
+        */
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.4s cubic-bezier(0.2, 1, 0.3, 1), 
+                        transform 1.4s cubic-bezier(0.2, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .loaded .reveal-element {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered Delays */
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.3s; }
+        .delay-3 { transition-delay: 0.5s; }
+        .delay-4 { transition-delay: 0.7s; }
+        .delay-5 { transition-delay: 0.9s; }
+
+        /* Minimal Button Hover Effect */
+        .btn-minimal {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-minimal::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--accent);
+            transition: width 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .btn-minimal:hover::after {
+            width: 100%;
+        }
+
+        /* Grain Texture (Optional, extremely subtle noise for depth) */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 50;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="min-h-screen supports-[height:100dvh]:min-h-[100dvh] w-full flex flex-col relative">
+
+    <!-- Subtle Texture Overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation (Minimal) -->
+    <nav class="w-full px-6 py-6 md:px-12 md:py-10 flex justify-between items-center z-10 fixed top-0 left-0 reveal-element delay-1 bg-gradient-to-b from-[var(--bg-color)] to-transparent md:bg-none">
+        <div class="text-[10px] md:text-xs font-medium tracking-[0.2em] text-neutral-500 uppercase">
+            Mohan Prasath
+        </div>
+        <div class="text-xs font-medium tracking-[0.2em] text-neutral-500 uppercase hidden md:block">
+            Based in India / Available
+        </div>
+        <a href="mailto:hello@mohan.dev" class="text-[10px] md:text-xs font-medium tracking-[0.1em] text-neutral-400 hover:text-white transition-colors duration-300">
+            CONTACT
+        </a>
+    </nav>
+
+    <!-- Main Hero Content -->
+    <main class="flex-grow flex flex-col justify-center px-6 md:px-12 lg:px-24 z-10 w-full pt-24 pb-20">
+        <div class="max-w-screen-xl mx-auto md:mx-0 w-full">
+            
+            <!-- Overline Label -->
+            <div class="reveal-element delay-2 mb-6">
+                <span class="inline-block py-1 px-3 border border-neutral-800 rounded-full text-[10px] md:text-xs tracking-widest uppercase text-neutral-400 bg-neutral-900/50 backdrop-blur-sm">
+                    Frontend Developer
+                </span>
+            </div>
+
+            <!-- Headline -->
+            <h1 class="reveal-element delay-3 text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-medium tracking-tighter leading-[1.1] text-white mb-8 md:mb-12 break-words">
+                Clarity over<br>
+                <span class="text-neutral-500">complexity.</span>
+            </h1>
+
+            <!-- Divider Line -->
+            <div class="reveal-element delay-4 w-12 md:w-24 h-[1px] bg-neutral-700 mb-8 md:mb-12"></div>
+
+            <!-- Subtext & CTA Grid -->
+            <div class="reveal-element delay-5 flex flex-col md:flex-row md:items-start md:gap-20 gap-8">
+                <p class="text-sm md:text-base leading-relaxed text-neutral-400 max-w-md font-light">
+                    I build pixel-perfect, accessible products that last. Currently crafting meaningful digital experiences with a focus on performance and restraint.
+                </p>
+
+                <!-- CTA -->
+                <a href="#work" class="group btn-minimal inline-flex items-center gap-4 text-white text-sm md:text-base tracking-wide py-2 w-fit">
+                    <span>View selected work</span>
+                    <!-- Arrow Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 transition-transform duration-500 group-hover:translate-x-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer / Bottom Anchor -->
+    <footer class="absolute bottom-6 left-6 md:bottom-8 md:left-12 z-10 reveal-element delay-5">
+        <p class="text-[10px] text-neutral-600 tracking-widest uppercase">
+            © 2025
+        </p>
+    </footer>
+
+    <script>
+        // Simple script to trigger the reveal animations once the DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Small timeout to ensure the browser has painted the initial state
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
