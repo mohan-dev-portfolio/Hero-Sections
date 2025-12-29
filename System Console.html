@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohan Prasath | Frontend Systems Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sys: {
+                            black: '#050505',
+                            dark: '#0B0C10',
+                            panel: '#111216',
+                            dim: '#454d55',
+                            text: '#C5C6C7',
+                            accent: '#00F0FF', // Electric Cyan
+                            accentDim: 'rgba(0, 240, 255, 0.1)',
+                            alert: '#FF2A6D'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'cursor-blink': 'blink 1s step-end infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                    },
+                    keyframes: {
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #C5C6C7;
+            /* Mobile: Allow scroll if needed. Desktop: Lock to screen. */
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
+        }
+
+        /* CRT/Grid Background Effects */
+        .bg-grid {
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        .corner-bracket {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: #00F0FF;
+            border-style: solid;
+            transition: all 0.3s ease;
+        }
+        .corner-tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+        .sys-card:hover .corner-bracket {
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+        }
+
+        .typing-cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+            color: #00F0FF;
+            margin-left: 2px;
+        }
+        
+        .no-cursor::after {
+            content: none;
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            position: fixed;
+            pointer-events: none;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 50;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body class="font-mono relative selection:bg-sys-accent selection:text-sys-black">
+
+    <!-- Background Grid -->
+    <div class="fixed inset-0 bg-grid z-0 pointer-events-none"></div>
+    <div class="scanlines"></div>
+
+    <!-- Main Content Area -->
+    <main class="w-full max-w-7xl mx-auto p-6 md:p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 z-10 items-center justify-center flex-grow">
+
+        <!-- LEFT COLUMN: Identity & Command Line -->
+        <section class="lg:col-span-7 flex flex-col justify-center gap-6 md:gap-8 relative order-1">
+            
+            <!-- Headline Block -->
+            <div class="space-y-4 text-center lg:text-left">
+                <div class="text-sys-accent text-xs md:text-sm tracking-[0.2em] uppercase opacity-80 mb-2">
+                    // Identity_Verified
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-white uppercase">
+                    Mohan<br>
+                    <span class="text-sys-dim">Prasath</span>
+                </h1>
+                
+                <div class="h-12 md:h-20 flex items-center justify-center lg:justify-start"> 
+                    <p id="typing-text" class="text-base md:text-2xl text-sys-accent typing-cursor font-light"></p>
+                </div>
+            </div>
+
+            <!-- Description / Manifest -->
+            <div class="border-l-2 border-sys-dim pl-4 max-w-2xl mx-auto lg:mx-0 text-left">
+                <p class="text-sys-text text-sm md:text-base leading-relaxed opacity-80">
+                    <span class="text-sys-accent">>></span> Initializing frontend architecture... <br>
+                    Architecting scalable interfaces with intent. I replace chaos with systems, transforming complex requirements into clean, performant, and responsive user experiences. 
+                </p>
+            </div>
+
+            <!-- CTA / Command Input -->
+            <div class="mt-4 md:mt-8 group w-full max-w-md mx-auto lg:mx-0">
+                <p class="text-xs text-sys-dim mb-2 uppercase tracking-widest text-center lg:text-left">Available Command:</p>
+                <button onclick="alert('Navigating to Projects...')" class="relative overflow-hidden bg-sys-panel border border-sys-accent/30 px-6 py-4 w-full text-left hover:border-sys-accent transition-all duration-300">
+                    <span class="absolute inset-0 bg-sys-accent/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300"></span>
+                    <span class="text-sys-accent mr-2">></span>
+                    <span class="text-white font-bold tracking-wider text-sm md:text-base">execute view_projects.sh</span>
+                    <span class="animate-pulse ml-1 inline-block w-2 h-4 bg-sys-accent align-middle opacity-0 group-hover:opacity-100"></span>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: System Dashboard / HUD -->
+        <!-- Changed: Removed hidden class to ensure visibility on mobile. Added order-2 for stacking. -->
+        <section class="lg:col-span-5 flex flex-col gap-4 justify-center w-full max-w-md mx-auto lg:mx-0 order-2">
+
+            <!-- Panel 1: Profile Diagnostics -->
+            <div class="sys-card bg-sys-panel/50 border border-sys-dim/30 p-6 relative backdrop-blur-sm">
+                <div class="corner-bracket corner-tl"></div>
+                <div class="corner-bracket corner-tr"></div>
+                <div class="corner-bracket corner-bl"></div>
+                <div class="corner-bracket corner-br"></div>
+
+                <h3 class="text-xs font-bold text-sys-dim uppercase tracking-widest mb-4 border-b border-sys-dim/20 pb-2">
+                    System_Diagnostics
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-sys-dim block text-xs">ROLE</span>
+                        <span class="text-white">Frontend Engineer</span>
+                    </div>
+                    <div>
+                        <span class="text-sys-dim block text-xs">LOCATION</span>
+                        <span class="text-white">Global / Remote</span>
+                    </div>
+                    <div>
+                        <span class="text-sys-dim block text-xs">STATUS</span>
+                        <span class="text-sys-accent">● Available</span>
+                    </div>
+                    <div>
+                        <span class="text-sys-dim block text-xs">LATENCY</span>
+                        <span class="text-sys-accent">12ms</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Active Processes (Skills) -->
+            <div class="sys-card bg-sys-panel/50 border border-sys-dim/30 p-6 relative backdrop-blur-sm">
+                <div class="corner-bracket corner-tl"></div>
+                <div class="corner-bracket corner-tr"></div>
+                <div class="corner-bracket corner-bl"></div>
+                <div class="corner-bracket corner-br"></div>
+
+                <div class="flex justify-between items-center mb-4 border-b border-sys-dim/20 pb-2">
+                    <h3 class="text-xs font-bold text-sys-dim uppercase tracking-widest">Active_Processes</h3>
+                    <span class="text-[10px] text-sys-accent animate-pulse">LIVE</span>
+                </div>
+
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-center justify-between group cursor-default">
+                        <span class="text-sys-text group-hover:text-white transition-colors">React.js Core</span>
+                        <span class="text-xs text-sys-accent bg-sys-accent/10 px-2 py-0.5 rounded">RUNNING</span>
+                    </li>
+                    <li class="flex items-center justify-between group cursor-default">
+                        <span class="text-sys-text group-hover:text-white transition-colors">TypeScript Compile</span>
+                        <span class="text-xs text-sys-accent bg-sys-accent/10 px-2 py-0.5 rounded">STRICT</span>
+                    </li>
+                    <li class="flex items-center justify-between group cursor-default">
+                        <span class="text-sys-text group-hover:text-white transition-colors">Next.js SSR</span>
+                        <span class="text-xs text-sys-accent bg-sys-accent/10 px-2 py-0.5 rounded">OPTIMIZED</span>
+                    </li>
+                    <li class="flex items-center justify-between group cursor-default">
+                        <span class="text-sys-text group-hover:text-white transition-colors">Tailwind Engine</span>
+                        <span class="text-xs text-sys-accent bg-sys-accent/10 px-2 py-0.5 rounded">CACHED</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Panel 3: Terminal Output Log -->
+            <div class="sys-card bg-sys-black border border-sys-dim/30 p-4 relative font-xs h-32 overflow-hidden">
+                <div class="absolute top-0 left-0 bg-sys-accent text-sys-black text-[10px] font-bold px-2">LOG</div>
+                <div id="console-log" class="mt-4 text-xs font-mono text-sys-dim space-y-1">
+                    <!-- Logs injected via JS -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- 1. Typing Effect Logic ---
+        const phrases = [
+            "SYSTEMS OVER CHAOS",
+            "BUILDING INTERFACES WITH INTENT",
+            "FRONTEND DEVELOPER"
+        ];
+        
+        const typeDelay = 100;
+        const eraseDelay = 50;
+        const nextPhraseDelay = 2000;
+        
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        
+        const typeTarget = document.getElementById('typing-text');
+        
+        function typeEngine() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                typeTarget.innerText = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typeTarget.innerText = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+        
+            let typeSpeed = isDeleting ? eraseDelay : typeDelay;
+        
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typeSpeed = nextPhraseDelay;
+                isDeleting = true;
+                typeTarget.classList.add('no-cursor'); // Pause blinking while waiting
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeTarget.classList.remove('no-cursor');
+            } else {
+                typeTarget.classList.remove('no-cursor');
+            }
+        
+            setTimeout(typeEngine, typeSpeed);
+        }
+
+        // --- 3. Mock System Logs ---
+        const logs = [
+            "Initializing main viewport...",
+            "Loading CSS modules...",
+            "Fetching GitHub activity...",
+            "Optimizing assets...",
+            "Connection established: 127.0.0.1",
+            "Rendering complete."
+        ];
+        
+        const logContainer = document.getElementById('console-log');
+        
+        function runLogs() {
+            let delay = 0;
+            logs.forEach((log, index) => {
+                delay += Math.random() * 800;
+                setTimeout(() => {
+                    const p = document.createElement('p');
+                    p.innerText = `> [${new Date().toLocaleTimeString('en-US', {hour12: false})}] ${log}`;
+                    if(index === logs.length - 1) p.className = "text-sys-accent";
+                    logContainer.appendChild(p);
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }, delay);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(typeEngine, 1000); // Start typing after brief pause
+            runLogs();
+        });
+
+    </script>
+</body>
+</html>
