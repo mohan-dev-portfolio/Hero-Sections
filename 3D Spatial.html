@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohan Prasath | Frontend Engineer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #050507;
+            --text-main: #E2E2E2;
+            --text-muted: #888899;
+            --accent-glow: rgba(100, 149, 237, 0.15);
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            cursor: none; /* Hide default cursor for immersion */
+        }
+
+        /* Custom Cursor */
+        #cursor-dot, #cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #cursor-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        #cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        /* Hover state class (applied via JS) */
+        .cursor-hover #cursor-ring {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Canvas Wrapper */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0; /* Fade in on load */
+            transition: opacity 1.5s ease-out;
+        }
+
+        /* Content Overlay */
+        .hero-overlay {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* Let clicks pass to canvas if needed */
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem 4rem;
+            text-align: center;
+            pointer-events: auto;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s forwards;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .role-tag {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.5em 1.2em;
+            border-radius: 100px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .cta-btn {
+            margin-top: 2.5rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 100px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Important: Ensure interactive elements have auto pointer events but trigger hover logic */
+        a, button, .glass-panel {
+            cursor: none; /* Keep cursor hidden to use custom one */
+        }
+
+        .cta-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+            padding-right: 3rem; /* Slide effect */
+        }
+
+        .cta-btn::after {
+            content: '→';
+            position: absolute;
+            right: 1.5rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Animations */
+        @keyframes floatUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.5;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+            40% {transform: translateX(-50%) translateY(-10px);}
+            60% {transform: translateX(-50%) translateY(-5px);}
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 2rem 1.5rem;
+                width: 90%;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            /* Show default cursor on mobile touch */
+            body {
+                cursor: auto;
+            }
+            #cursor-dot, #cursor-ring {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor Elements -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- 3D Background -->
+    <div id="canvas-container"></div>
+
+    <!-- Interface -->
+    <div class="hero-overlay">
+        
+        <!-- Navigation (Minimal) -->
+        <nav class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20 pointer-events-auto">
+            <div class="text-white font-bold tracking-tighter text-xl interactive-element">MP.</div>
+            <div class="hidden md:flex gap-8 text-sm text-gray-400">
+                <a href="#" class="hover:text-white transition-colors interactive-element">Work</a>
+                <a href="#" class="hover:text-white transition-colors interactive-element">About</a>
+                <a href="#" class="hover:text-white transition-colors interactive-element">Notes</a>
+            </div>
+            <a href="mailto:contact@mohan.dev" class="text-sm text-gray-400 hover:text-white transition-colors interactive-element">Contact</a>
+        </nav>
+
+        <!-- Main Hero Card -->
+        <div class="glass-panel">
+            <span class="role-tag">Frontend Engineer</span>
+            <h1 class="text-5xl md:text-7xl font-bold mb-4">MOHAN PRASATH</h1>
+            <p class="text-gray-400 max-w-md mx-auto leading-relaxed text-lg">
+                Crafting digital systems with spatial depth, interaction, and precise engineering.
+            </p>
+            
+            <button class="cta-btn interactive-element">
+                View Selected Work
+            </button>
+        </div>
+
+        <!-- Scroll Hint -->
+        <div class="scroll-indicator text-xs tracking-widest uppercase text-gray-500">
+            Scroll
+        </div>
+
+    </div>
+
+    <script>
+        // --- 3D SCENE SETUP ---
+        const container = document.getElementById('canvas-container');
+        
+        // Scene Basics
+        const scene = new THREE.Scene();
+        // Fog for depth fading
+        scene.fog = new THREE.FogExp2(0x050507, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        container.appendChild(renderer.domElement);
+
+        // --- GEOMETRY ---
+
+        // 1. Central Complex Knot (The "Brain/System")
+        const geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 150, 20);
+        
+        // Custom Wireframe Material for Tech Feel
+        const materialWire = new THREE.MeshBasicMaterial({ 
+            color: 0x4a5568, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.15 
+        });
+
+        // Glassy Inner Material
+        const materialGlass = new THREE.MeshPhysicalMaterial({
+            color: 0x111111,
+            metalness: 0.9,
+            roughness: 0.1,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            transmission: 0.2, // glass-like
+            opacity: 0.8,
+            transparent: true
+        });
+
+        const torusKnot = new THREE.Mesh(geometry, materialGlass);
+        const torusWire = new THREE.Mesh(geometry, materialWire);
+        
+        // Group them to rotate together
+        const mainObject = new THREE.Group();
+        mainObject.add(torusKnot);
+        mainObject.add(torusWire);
+        scene.add(mainObject);
+
+        // 2. Floating Particles (The "Data")
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Spread particles wide
+            posArray[i] = (Math.random() - 0.5) * 25; 
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0x64748b,
+            transparent: true,
+            opacity: 0.6,
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // --- LIGHTING ---
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // Key light (blue-ish)
+        const spotLight = new THREE.SpotLight(0x3b82f6, 10);
+        spotLight.position.set(5, 5, 5);
+        spotLight.angle = 0.5;
+        spotLight.penumbra = 1;
+        scene.add(spotLight);
+
+        // Rim light (purple-ish)
+        const rimLight = new THREE.PointLight(0x8b5cf6, 5);
+        rimLight.position.set(-5, 0, -5);
+        scene.add(rimLight);
+
+        // Mouse Follow Light (Interactive Lighting)
+        const mouseLight = new THREE.PointLight(0xffffff, 2, 10);
+        scene.add(mouseLight);
+
+        // --- INTERACTION ---
+        
+        // DOM Cursor Elements
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        const interactiveElements = document.querySelectorAll('.interactive-element, a, button');
+
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        // Raw mouse coordinates for DOM cursor
+        let clientX = -100;
+        let clientY = -100;
+
+        // Smooth cursor coordinates
+        let ringX = -100;
+        let ringY = -100;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            // 3D Scene Coords
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+
+            // 2D Cursor Coords
+            clientX = event.clientX;
+            clientY = event.clientY;
+        });
+
+        // Add hover effects for interactive elements
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                document.body.classList.add('cursor-hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                document.body.classList.remove('cursor-hover');
+            });
+        });
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- ANIMATION LOOP ---
+        
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // 1. UPDATE DOM CURSOR (Linear Interpolation for smooth follow)
+            // The 0.15 factor determines the "lag" weight. Lower is slower/heavier.
+            ringX += (clientX - ringX) * 0.15;
+            ringY += (clientY - ringY) * 0.15;
+
+            // Apply positions
+            if (cursorDot) cursorDot.style.transform = `translate(${clientX}px, ${clientY}px) translate(-50%, -50%)`;
+            if (cursorRing) cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+
+
+            // 2. UPDATE 3D SCENE
+            // Smooth Rotation
+            const targetX = mouseX * 0.001;
+            const targetY = mouseY * 0.001;
+
+            mainObject.rotation.y += 0.05 * (targetX - mainObject.rotation.y);
+            mainObject.rotation.x += 0.05 * (targetY - mainObject.rotation.x);
+            
+            // Auto Rotation
+            mainObject.rotation.y += 0.003;
+            mainObject.rotation.x += 0.001;
+
+            // Particles slow drift
+            particlesMesh.rotation.y = -elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            // Subtle floating for main object
+            mainObject.position.y = Math.sin(elapsedTime * 0.5) * 0.2;
+
+            // 3. UPDATE MOUSE LIGHT
+            // Map 2D mouse position to 3D world space approximately
+            // The factor (e.g. 0.01) scales the movement to match scene scale
+            mouseLight.position.x = (mouseX * 0.01); 
+            mouseLight.position.y = -(mouseY * 0.01);
+            mouseLight.position.z = 2; // Position slightly in front of the object
+
+            renderer.render(scene, camera);
+        }
+
+        // Start animation after slight delay to ensure load
+        window.onload = () => {
+            container.style.opacity = 1;
+            animate();
+        };
+
+    </script>
+</body>
+</html>
