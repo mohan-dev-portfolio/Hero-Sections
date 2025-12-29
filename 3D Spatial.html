@@ -322,30 +322,52 @@
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         container.appendChild(renderer.domElement);
 
-        // --- GEOMETRY: PARTICLES ONLY ---
+        // --- GEOMETRY: PARTICLES ---
         
-        // Particles (The "Data/Stars")
+        // Layer 1: Primary Particles (Brighter, Front)
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 1200; // Increased count since main object is gone
+        const particlesCount = 1500; 
         const posArray = new Float32Array(particlesCount * 3);
         
         for(let i = 0; i < particlesCount * 3; i++) {
             // Spread particles wide across the screen
-            posArray[i] = (Math.random() - 0.5) * 40; 
+            posArray[i] = (Math.random() - 0.5) * 45; 
         }
 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.04,
-            color: 0x64748b,
+            size: 0.05,
+            color: 0x88ccff, // Slightly bluer/brighter
             transparent: true,
-            opacity: 0.6,
+            opacity: 0.7,
             sizeAttenuation: true
         });
 
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
+
+        // Layer 2: Ambient Dust (Subtle, Background)
+        const dustGeometry = new THREE.BufferGeometry();
+        const dustCount = 2000;
+        const dustPosArray = new Float32Array(dustCount * 3);
+
+        for(let i = 0; i < dustCount * 3; i++) {
+            dustPosArray[i] = (Math.random() - 0.5) * 50; 
+        }
+
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPosArray, 3));
+
+        const dustMaterial = new THREE.PointsMaterial({
+            size: 0.02, // Smaller
+            color: 0x64748b, // Muted grey/blue
+            transparent: true,
+            opacity: 0.3,
+            sizeAttenuation: true
+        });
+
+        const dustMesh = new THREE.Points(dustGeometry, dustMaterial);
+        scene.add(dustMesh);
 
         // --- LIGHTING ---
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -458,15 +480,17 @@
             const targetX = mouseX * 0.0005; // Reduced sensitivity for background
             const targetY = mouseY * 0.0005;
 
-            // Rotate entire particle field slightly based on mouse
+            // Layer 1: Primary Particles (Faster, Closer)
             particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
             particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
-            
-            // Constant slow drift
-            particlesMesh.rotation.y -= 0.0005; 
-
-            // Gentle floating breath
+            particlesMesh.rotation.y -= 0.001; 
             particlesMesh.position.y = Math.sin(elapsedTime * 0.2) * 0.2;
+
+            // Layer 2: Dust (Slower, Background Parallax)
+            dustMesh.rotation.y += 0.02 * (targetX - dustMesh.rotation.y);
+            dustMesh.rotation.x += 0.02 * (targetY - dustMesh.rotation.x);
+            dustMesh.rotation.y -= 0.0003; 
+            dustMesh.position.y = Math.cos(elapsedTime * 0.15) * 0.15; // Different phase
 
             // 3. Lighting
             mouseLight.position.x = (mouseX * 0.01); 
